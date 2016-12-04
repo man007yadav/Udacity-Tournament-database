@@ -8,31 +8,33 @@ import psycopg2
 
 def connect():
     """Connect to the PostgreSQL database.  Returns a database connection."""
-    return psycopg2.connect("dbname=tournament")
+    try:
+    	db = psycopg2.connect("dbname=tournament")
+    	cursor = db.cursor()
+    	return db,cursor
+    except:
+    	print("Database connection error")
 
 
 def deleteMatches():
     """Remove all the match records from the database."""
-    db = connect()
-    c = db.cursor()
-    c.execute('DELETE FROM matches')
+    db,c = connect()
+    c.execute('TRUNCATE matches')
     db.commit()
     db.close()
 
 
 def deletePlayers():
     """Remove all the player records from the database."""
-    db = connect()
-    c = db.cursor()
-    c.execute('DELETE FROM players')
+    db,c= connect()
+    c.execute('TRUNCATE players CASCADE') # Quicker method to empty a referenced table
     db.commit()
     db.close()
 
 
 def countPlayers():
     """Returns the number of players currently registered."""
-    db = connect()
-    c = db.cursor()
+    db,c = connect()
     sql = 'SELECT COALESCE(COUNT(*),0) FROM players'
     c.execute(sql)
     rows = c.fetchall()
@@ -52,8 +54,7 @@ def registerPlayer(name):
     Args:
       name: the player's full name (need not be unique).
     """
-    db = connect()
-    c = db.cursor()
+    db,c = connect()
     sql = 'INSERT INTO players(player_name) values(%s)'
     c.execute(sql,(name,))
     db.commit()
@@ -75,8 +76,7 @@ def playerStandings():
         matches: the number of matches the player has played
     """
     standings = []
-    db = connect()
-    c = db.cursor()
+    db,c = connect()
     sql = '''SELECT win_rank.id,win_rank.name,win_rank.wins,COALESCE(loss_count.losses, 0) AS losses 
     		 FROM 
              	(SELECT players.player_id AS id,players.player_name AS name,COALESCE(win_count.wins, 0) AS wins 
@@ -111,8 +111,7 @@ def reportMatch(winner, loser):
       winner:  the id number of the player who won
       loser:  the id number of the player who lost
     """
-    db = connect()
-    c = db.cursor()
+    db,c = connect()
     sql = 'INSERT INTO matches(winner,loser) values(%s,%s)'
     c.execute(sql,(winner,loser,))
     db.commit()
