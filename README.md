@@ -29,7 +29,7 @@ With psql, you can run any SQL query on the tables of the currently connected da
 When using psql, remember to end SQL statements with a semicolon, which is not always required from Python.
 To build and access the database we run `psql` followed by `\i tournament.sql`
 
-
+Udacity documentation for the [course](https://docs.google.com/document/d/16IgOm4XprTaKxAa8w02y028oBECOoB1EI1ReddADEeY/pub?embedded=true)
 
 
 ### Database Setup
